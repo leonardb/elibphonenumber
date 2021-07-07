@@ -1,6 +1,6 @@
 elibphonenumber
 ===============
-[![Build Status](https://travis-ci.org/silviucpp/elibphonenumber.svg?branch=master)](https://travis-ci.org/silviucpp/elibphonenumber)
+[![Build Status](https://travis-ci.com/silviucpp/elibphonenumber.svg?branch=master)](https://travis-ci.com/silviucpp/elibphonenumber)
 [![GitHub](https://img.shields.io/github/license/silviucpp/elibphonenumber)](https://img.shields.io/github/license/silviucpp/elibphonenumber)
 [![Hex.pm](https://img.shields.io/hexpm/v/elibphonenumber)](https://hex.pm/packages/elibphonenumber)
 
@@ -52,6 +52,26 @@ In order to do this make sure the application is started then use `phonenumber_t
 ```erlang 
 application:ensure_all_started(elibphonenumber).
 phonenumber_to_carrier:carrier_for_number(<<"44743655551">>, <<"en">>).
+```
+
+## Get Timezones for a number
+
+In order to get the timezones associated with a number you can call `phonenumber_to_timezones:timezones_for_number/1` method as follow:
+
+```erlang 
+application:ensure_all_started(elibphonenumber).
+phonenumber_to_timezones:timezones_for_number(<<"16502530000">>).
+{ok,[<<"America/Los_Angeles">>]}
+```
+
+## Geocoding
+
+Using the following method you can get the geographical area of a phone number (in case this information is available).
+
+```erlang 
+application:ensure_all_started(elibphonenumber).
+phonenumber_geocoding:get_geocoding_for_number(<<"+16502530000">>),
+<<"Mountain View, CA">>
 ```
 
 ## Run the tests

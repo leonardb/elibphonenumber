@@ -41,6 +41,7 @@ qmake_unix()
         -DUSE_BOOST=ON \
         -DUSE_RE2=OFF \
         -DUSE_ICU_REGEXP=ON \
+        -USE_STDMUTEX=ON \
         -DREGENERATE_METADATA=OFF \
         ..
 }
@@ -56,6 +57,7 @@ qmake_darwin()
 	    -DUSE_RE2=OFF \
 	    -DUSE_ICU_REGEXP=ON \
 	    -DREGENERATE_METADATA=OFF \
+	    -USE_STDMUTEX=ON \
         -DICU_UC_INCLUDE_DIR=/usr/local/opt/icu4c/include \
         -DICU_UC_LIB=/usr/local/opt/icu4c/lib/libicuuc.dylib \
         -DICU_I18N_INCLUDE_DIR=/usr/local/opt/icu4c/include \
@@ -107,6 +109,7 @@ copy_resources()
     rm -rf priv
     fail_check mkdir priv
     fail_check cp -R $DEPS_LOCATION/$DESTINATION/resources/carrier priv/carrier
+    fail_check cp -R $DEPS_LOCATION/$DESTINATION/resources/timezones priv/timezones
 }
 
 run_installation()

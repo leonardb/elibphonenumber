@@ -7,6 +7,13 @@
 -on_load(load_nif/0).
 
 -export([
+
+    % geocoder
+
+    get_geocoding_for_number/2,
+
+    % utils
+
     get_supported_regions/0,
     is_alpha_number/1,
     convert_alpha_characters_in_number/1,
@@ -32,11 +39,14 @@
     get_country_code_for_region/1,
     get_region_code_for_country_code/1,
     get_region_codes_for_country_calling_code/1,
+    get_region_display_name/2,
     is_nanpa_country/1,
     get_ndd_prefix_for_region/2,
     is_possible_number_with_reason/1,
     is_possible_number/1,
     is_possible_number_for_string/2,
+    can_be_internationally_dialled/1,
+    is_number_geographical/1,
     get_example_number/1,
     get_example_number_for_type/2,
     get_example_number_for_non_geo_entity/1,
@@ -54,6 +64,23 @@ load_nif() ->
 
 not_loaded(Line) ->
     erlang:nif_error({not_loaded, [{module, ?MODULE}, {line, Line}]}).
+
+%% @doc Returns a text description for the given phone number, in the language
+%% provided. The description might consist of the name of the country where
+%% the phone number is from, or the name of the geographical area the phone
+%% number is from if more detailed information is available. Returns an empty
+%% string if the number could come from multiple countries, or the country
+%% code is in fact invalid.
+%%
+%% This method assumes the validity of the number passed in has already been
+%% checked, and that the number is suitable for geocoding. We consider
+%% fixed-line and mobile numbers possible candidates for geocoding.
+
+-spec get_geocoding_for_number(Number::phonenumber(), Locale::binary()) ->
+    binary().
+
+get_geocoding_for_number(_Number, _Locale) ->
+    ?NOT_LOADED.
 
 -spec get_supported_regions() ->
     [binary()].
@@ -127,13 +154,13 @@ get_national_significant_number(_PhoneNumber) ->
 %% PhoneNumber = phonenumber_util:parse(<<"16502530000">>, <<"US">>),
 %% NationalSignificantNumber = phonenumber_util:get_national_significant_number(PhoneNumber),
 %% NationalDestinationCodeLength = phonenumber_util:get_length_of_national_destination_code(PhoneNumber),
-%% {NationalDestinationCode, SubscriberNumber} = if 
+%% {NationalDestinationCode, SubscriberNumber} = if
 %%     NationalDestinationCodeLength > 0 ->
 %%         {binary:part(NationalSignificantNumber, NationalDestinationCodeLength),
 %%         binary:part(NationalSignificantNumber, NationalDestinationCodeLength, byte_size(NationalSignificantNumber))};
 %%     true ->
-%%     {<<>>, NationalSignificantNumber} 
-%% end.       
+%%     {<<>>, NationalSignificantNumber}
+%% end.
 %% '''
 
 get_length_of_national_destination_code(_PhoneNumber) ->
@@ -152,7 +179,7 @@ get_length_of_national_destination_code(_PhoneNumber) ->
 %% PhoneNumber = phonenumber_util.parse(<<"16502530000">>,<<"US">>),
 %% NationalSignificantNumber = phonenumber_util.get_national_significant_number(PhoneNumber),
 %% AreaCodeLength = phonenumber_util.get_lenth_of_geographical_area_code(PhoneNumber),
-%% {AreaCode, SubscriberNumber} = if 
+%% {AreaCode, SubscriberNumber} = if
 %%     AreaCodeLength > 0 ->
 %%          {binary:part(NationalSignificantNumber, AreaCodeLength),
 %%          binary:part(NationalSignificantNumber, AreaCodeLength, byte_size(NationalSignificantNumber))};
@@ -397,6 +424,14 @@ get_region_code_for_country_code(_CountryCode) ->
 get_region_codes_for_country_calling_code(_CountryCallingCode) ->
     ?NOT_LOADED.
 
+-spec get_region_display_name(RegionCode::binary(), Language::binary()) ->
+    binary().
+
+%% @doc Get display name (country name) for a region code.
+
+get_region_display_name(_RegionCode, _Language) ->
+    ?NOT_LOADED.
+
 -spec is_nanpa_country(RegionCode::binary()) ->
     boolean().
 
@@ -456,13 +491,13 @@ is_possible_number(_PhoneNumber) ->
 
 %% @doc Checks whether a phone number is a possible number given a number in the
 %% form of a string, and the country where the number could be dialed from.
-%% It provides a more lenient check than is_valid_number/1. 
+%% It provides a more lenient check than is_valid_number/1.
 %% See is_possible_number/1 for details.
-%% 
+%%
 %% This method first parses the number, then invokes
 %% is_possible_number with the resultant PhoneNumber
 %% object.
-%% 
+%%
 %% region_dialing_from represents the region that we are expecting the number
 %% to be dialed from. Note this is different from the region where the number
 %% belongs. For example, the number +1 650 253 0000 is a number that belongs
@@ -472,9 +507,25 @@ is_possible_number(_PhoneNumber) ->
 %% 650 253 0000, it could only be dialed from within the US, and when written
 %% as 253 0000, it could only be dialed from within a smaller area in the US
 %% (Mountain View, CA, to be more specific).
-%% @see is_possible_number. 
+%% @see is_possible_number.
 
 is_possible_number_for_string(_Number, _RegionDialingFrom) ->
+    ?NOT_LOADED.
+
+%% @doc Returns true if the number can be dialled from outside the region, or
+%% unknown. If the number can only be dialled from within the region, returns
+%% false. Does not check the number is a valid number. Note that, at the
+%% moment, this method does not handle short numbers (which are currently all
+%% presumed to not be diallable from outside their country).
+
+can_be_internationally_dialled(_Number) ->
+    ?NOT_LOADED.
+
+%% @doc Tests whether a phone number has a geographical association. It checks if
+%% the number is associated with a certain region in the country to which it
+%% belongs. Note that this doesn't verify if the number is actually in use.
+
+is_number_geographical(_Number) ->
     ?NOT_LOADED.
 
 -spec get_example_number(RegionCode::binary()) ->
